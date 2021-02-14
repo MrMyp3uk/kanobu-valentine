@@ -28,6 +28,7 @@
             if (lineBottom > rect.height) break;
         }
 
+        ctx.fillStyle = '#f8f8f8';
         for (var line of lines) {
 			ctx.fillText(line.text, rect.x, line.bottom);
         }
@@ -37,6 +38,7 @@
         ctx.font = FONT_SIZE + 'px ' + FONT_NAME;
         let textWidth = ctx.measureText(text).width;
         x = Math.max(x + Math.floor(maxWidth / 2) - Math.floor(textWidth / 2), x);
+        ctx.fillStyle = '#f8f8f8';
         ctx.fillText(text, x, y + 35, maxWidth);
     }
 
@@ -48,30 +50,21 @@
             drawTextRect(message.value, ctx, { x: 180, y: 25, width: 504, height: 225 }, { minSize: FONT_SIZE, maxSize: 60 });
         }
 
-        function copyToClipboard() {
-            imageCopy.src = canvas.toDataURL('image/png');
-
-            let range = document.createRange();
-            range.setStartBefore(image);
-            range.setEndAfter(image);
-            range.selectNode(image);
-
-            let selection = window.getSelection();
-            selection.addRange(range);
-
-            document.execCommand('Copy');
-        }
-
         function saveToFile() {
             saveButton.href = canvas.toDataURL('image/png');
         }
 
+        function scaleCanvas() {
+            let newHeight =  Math.floor(canvas.width * IMAGE_ASPECT_RATIO);
+            canvas.height = newHeight;
+            updatePostCard();
+        }
+
         let image = document.getElementById('template');
-        let imageCopy = document.getElementById('template');
+        const IMAGE_ASPECT_RATIO = image.height / image.width;
 
         let canvas = document.getElementById('canvas');
         let ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#EEE';
 
         let from = document.getElementById('from');
         from.addEventListener('input', updatePostCard);
@@ -82,12 +75,10 @@
         let message = document.getElementById('message');
         message.addEventListener('input', updatePostCard);
 
-        let copyButton = document.getElementsByClassName('copy-img')[0];
-        copyButton.addEventListener('click', copyToClipboard);
-
         let saveButton = document.getElementsByClassName('save-img')[0];
         saveButton.addEventListener('click', saveToFile);
 
-        updatePostCard();
+        window.addEventListener('resize', scaleCanvas);
+        scaleCanvas();
     }
 })();
